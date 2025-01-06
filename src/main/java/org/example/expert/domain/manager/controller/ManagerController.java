@@ -16,13 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/todos/{todoId}/managers")
 @RequiredArgsConstructor
 public class ManagerController {
 
     private final ManagerService managerService;
     private final JwtUtil jwtUtil;
 
-    @PostMapping("/todos/{todoId}/managers")
+    @PostMapping
     public ResponseEntity<ManagerSaveResponse> saveManager(
             @Auth AuthUser authUser,
             @PathVariable long todoId,
@@ -31,12 +32,12 @@ public class ManagerController {
         return ResponseEntity.ok(managerService.saveManager(authUser, todoId, managerSaveRequest));
     }
 
-    @GetMapping("/todos/{todoId}/managers")
+    @GetMapping
     public ResponseEntity<List<ManagerResponse>> getMembers(@PathVariable long todoId) {
         return ResponseEntity.ok(managerService.getManagers(todoId));
     }
 
-    @DeleteMapping("/todos/{todoId}/managers/{managerId}")
+    @DeleteMapping("/{managerId}")
     public void deleteManager(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable long todoId,
@@ -44,6 +45,7 @@ public class ManagerController {
     ) {
         Claims claims = jwtUtil.extractClaims(bearerToken.substring(7));
         long userId = Long.parseLong(claims.getSubject());
+
         managerService.deleteManager(userId, todoId, managerId);
     }
 }
